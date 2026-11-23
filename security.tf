@@ -30,7 +30,7 @@ resource "azurerm_network_security_group" "app" {
     destination_address_prefix = "*"
   }
 
-  # Bloqueo estricto de SSH desde Internet (Requisito S2)
+  # Bloqueo estricto de SSH desde Internet (Requisito S2 / Remediado en PR 2)
   security_rule {
     name                       = "Deny-SSH-Internet"
     priority                   = 200
@@ -41,6 +41,7 @@ resource "azurerm_network_security_group" "app" {
     destination_port_range     = "22"
     source_address_prefix      = "Internet"
     destination_address_prefix = "*"
+    description                = "Strictly block SSH port 22 from all Internet sources (Remediated in PR 2 - Requisito D1)"
   }
 
   # Bloqueo estricto de RDP desde Internet (Requisito S2)
