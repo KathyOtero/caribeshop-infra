@@ -7,7 +7,7 @@ resource "random_password" "generated_key_seed" {
 
 locals {
   # Si el usuario proporciona var.ssh_public_key la usa; si no, usa una clave estándar genérica
-  default_public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIn2L0i03vBqZ3E3P0U0jB0kM3cT0e0w0r0k0C0a0r0i caribeshop-default-key"
+  default_public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDPb0lh7Z73RHQvwIVkALFUiuXpO0Xt7A7e6NFtpsheI0SRcddu8eV33EFeSgyU6gYvYKz4BkPgPi1nuOqeZd0UuN2BIDXymX9lwOYeQNsbAXMk+7o7vTItYPQWSb18c51AZQ20TATQWWuBPdytwS2GTzZz45FDNicGufu+GuFen1XLFAsufzJkSjqrqbJVeY5c1LKchPeqxlC2D8X+yOww9NGUz1GaE6AF3+t0L8L1KC1rv4Oa5QsJ0ADgur52iYGOwRG1xzfgVxHQFtOUqAStsw9XsSPhLA9hTwdAiFs99PcL0Ci8MfSJ4+XMxasgHdCYnoRnkZMmymaf6Nh4ShYx usuario@DESKTOP-NGP1MEH"
   effective_ssh_key  = var.ssh_public_key != "" ? var.ssh_public_key : local.default_public_key
 }
 
