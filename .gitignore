@@ -1,0 +1,29 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+terraform.tfstate
+terraform.tfstate.backup
+
+# Variables con valores reales (nunca comitear credenciales - Requisito S1)
+*.tfvars
+*.tfvars.json
+!terraform.tfvars.example
+
+# Credenciales y llaves SSH
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+
+# Logs y volcados de depuración
+crash.log
+*.log
+
+# Archivos temporales de SO y editores
+*.tmp
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

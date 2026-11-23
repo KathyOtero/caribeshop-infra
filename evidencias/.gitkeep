@@ -1,0 +1,3 @@
+# Evidencias de pruebas de carga y fallas (Locust)
+# Colocar aquí los reportes generados con:
+#   locust -f locustfile.py --csv=evidencias/locust_run --html=evidencias/locust_report.html

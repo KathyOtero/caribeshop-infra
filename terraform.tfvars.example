@@ -1,0 +1,43 @@
+# ==============================================================================
+# CaribeShop - Archivo de Variables de Ejemplo (terraform.tfvars.example)
+# Copia este archivo a 'terraform.tfvars' y completa los valores para tu entorno.
+# NOTA: 'terraform.tfvars' está ignorado en Git para proteger secretos (Requisito S1).
+# ==============================================================================
+
+# Nombre general del proyecto y entorno
+project_name = "caribeshop"
+environment  = "dev"
+
+# Región de Azure donde desplegar
+# Tip: Revisa con 'az vm list-usage -l "brazil south" -o table' la cuota de vCPU de tu suscripción.
+# Si no tienes cuota en 'brazil south', puedes usar 'eastus' o 'eastus2'.
+location = "brazil south"
+
+# Zonas de disponibilidad (Requisito E1: mínimo 2 zonas)
+zones = ["1", "2", "3"]
+
+# Configuración del administrador Linux en las instancias
+admin_username = "azureuser"
+
+# (Opcional) Pega aquí el contenido de tu llave pública SSH (~/.ssh/id_rsa.pub)
+# Si se deja vacío (""), Terraform usará una clave de respaldo para permitir validar y desplegar
+ssh_public_key = ""
+
+# Tamaño de máquina virtual (Standard_D2s_v4 = 2 vCPU, 8 GB RAM)
+vm_size = "Standard_D2s_v4"
+
+# Escalamiento automático (Requisito E1 y E3)
+min_instances     = 2
+desired_instances = 2
+max_instances     = 3
+
+# IP pública del operador (formato CIDR) para acceso administrativo a Azure Key Vault (Requisito S3)
+# Puedes consultar tu IP actual en https://ifconfig.me/ y poner ej: "190.25.10.5/32"
+admin_ip = ""
+
+# Correo donde se recibirán las alertas de CPU de Azure Monitor (Requisito E5)
+alert_email = "estudiante@utb.edu.co"
+
+# Secreto sensible a almacenar en Azure Key Vault (Requisito S3)
+# La app leerá este secreto con su Managed Identity y mostrará una huella segura (longitud y hash SHA-256)
+app_secret_value = "CaribeShop2026SecureKey"
