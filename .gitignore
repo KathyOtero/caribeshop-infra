@@ -28,3 +28,6 @@ crash.log
 Thumbs.db
 .vscode/
 .idea/
+__pycache__/
+*.pyc
+
