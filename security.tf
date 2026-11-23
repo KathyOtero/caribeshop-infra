@@ -30,16 +30,16 @@ resource "azurerm_network_security_group" "app" {
     destination_address_prefix = "*"
   }
 
-  # Bloqueo estricto de SSH desde Internet (Requisito S2)
+  # Vulnerabilidad intencional para demostración de fallo de Checkov en PR 1 (Requisito D1)
   security_rule {
-    name                       = "Deny-SSH-Internet"
+    name                       = "Allow-SSH-Internet-Insecure"
     priority                   = 200
     direction                  = "Inbound"
-    access                     = "Deny"
+    access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = "Internet"
+    source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
 
