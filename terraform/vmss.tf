@@ -75,7 +75,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "app" {
   }
 
   # Configuración reproducible mediante cloud-init (Requisitos S3, D3, P2.1)
-  custom_data = base64encode(templatefile("${path.module}/user_data.sh", {
+  custom_data = base64encode(templatefile("${path.module}/scripts/user_data.sh", {
     vault_name = azurerm_key_vault.main.name
   }))
 

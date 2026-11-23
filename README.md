@@ -34,7 +34,41 @@ Este repositorio contiene la definición como código (IaC) en **Terraform** de 
 
 ---
 
-## 2. Requisitos Previos
+## 2. Estructura del Repositorio
+
+```text
+caribeshop-infra/
+├── .github/
+│   └── workflows/
+│       └── devsecops.yml        # Pipeline CI/CD: fmt, validate y Checkov bloqueante (D1)
+├── terraform/                   # Definición como código de la infraestructura (IaC)
+│   ├── scripts/
+│   │   └── user_data.sh         # Script cloud-init reproducible para microservicio Python
+│   ├── autoscale.tf             # Reglas de autoescalado reactivo con histéresis (E3)
+│   ├── backend.tf               # Backend remoto en Azure Blob Storage (S1)
+│   ├── key_vault.tf             # Azure Key Vault con RBAC y firewall por IP/VNet (S3, S4)
+│   ├── load_balancer.tf         # Azure Standard Load Balancer con sonda dedicada (E2)
+│   ├── main.tf                  # Resource Group principal
+│   ├── monitoring.tf            # Log Analytics, Diagnostic Settings y Alerta CPU (S6, E5)
+│   ├── network.tf               # Virtual Network y subred con Service Endpoint
+│   ├── outputs.tf               # Salidas: IP pública, URLs y consulta KQL
+│   ├── policy.tf                # Azure Policy preventiva con efecto Deny sobre SSH (S5)
+│   ├── providers.tf             # Proveedores HashiCorp requeridos
+│   ├── security.tf              # NSG con reglas de mínimo privilegio (S2)
+│   ├── terraform.tfvars.example  # Plantilla de variables sin secretos reales
+│   ├── variables.tf             # Declaración y tipado de variables
+│   ├── versions.tf              # Fijación de versiones de Terraform y AzureRM
+│   └── vmss.tf                  # VMSS multi-zona con reparación automática (E1, E4, D3)
+├── tests/
+│   └── locustfile.py            # Escenarios de prueba de carga y resiliencia (P1, P2)
+├── evidencias/                  # Carpeta de reportes CSV/HTML de Locust y capturas
+├── .gitignore                   # Exclusión estricta de tfstate y tfvars con secretos
+└── README.md                    # Documentación del proyecto
+```
+
+---
+
+## 3. Requisitos Previos
 
 - [Azure CLI](https://learn.microsoft.com/es-es/cli/azure/install-azure-cli) instalado y autenticado (`az login`).
 - [Terraform CLI](https://developer.hashicorp.com/terraform/install) (v1.5.0 o superior).
@@ -42,12 +76,12 @@ Este repositorio contiene la definición como código (IaC) en **Terraform** de 
 
 ---
 
-## 3. Variables de Configuración
+## 4. Variables de Configuración
 
-Crea un archivo local `terraform.tfvars` a partir de `terraform.tfvars.example`:
+Crea un archivo local `terraform/terraform.tfvars` a partir de `terraform/terraform.tfvars.example`:
 
 ```bash
-cp terraform.tfvars.example terraform.tfvars
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
 ```
 
 ### Tabla de Variables
@@ -70,7 +104,7 @@ cp terraform.tfvars.example terraform.tfvars
 
 ---
 
-## 4. Guía de Despliegue y Destrucción
+## 5. Guía de Despliegue y Destrucción
 
 ### Paso 1: Autenticación en Azure
 ```bash
@@ -80,10 +114,12 @@ az account set --subscription "<ID_O_NOMBRE_DE_TU_SUSCRIPCION>"
 
 ### Paso 2: Inicializar Terraform
 ```bash
-# Para inicializar con el backend configurado:
+cd terraform
+
+# Inicializar con el backend configurado:
 terraform init
 
-# Para pruebas locales o validación de sintaxis:
+# Para pruebas locales o validación sintáctica sin backend:
 terraform init -backend=false
 ```
 
@@ -109,7 +145,7 @@ terraform destroy -auto-approve
 
 ---
 
-## 5. Endpoints Disponibles en la Aplicación
+## 6. Endpoints Disponibles en la Aplicación
 
 - `http://<IP_LB>/`: Página principal de CaribeShop que muestra el hostname de la VM que atiende la petición, el estado del balanceador y la **huella de seguridad del secreto** (longitud y SHA-256 truncado) obtenido vía Managed Identity.
 - `http://<IP_LB>/health`: Sonda de salud consumida por el Load Balancer. Retorna HTTP 200 en estado normal y HTTP 503 en caso de fallo inducido.
@@ -119,21 +155,22 @@ terraform destroy -auto-approve
 
 ---
 
-## 6. Pruebas de Carga y Resiliencia (Locust)
+## 7. Pruebas de Carga y Resiliencia (Locust)
 
 ### P1.1: Medir capacidad de una instancia
-1. Configurar temporalmente `min_instances = 1`, `max_instances = 1`, `desired_instances = 1` y aplicar con `terraform apply`.
-2. Lanzar Locust:
+1. Configurar temporalmente en `terraform/terraform.tfvars`: `min_instances = 1`, `max_instances = 1`, `desired_instances = 1`.
+2. Aplicar: `terraform apply -auto-approve`.
+3. Lanzar Locust desde la raíz del proyecto:
 ```bash
-locust -f locustfile.py --host=http://<IP_LB>
+locust -f tests/locustfile.py --host=http://<IP_LB>
 ```
-3. Aumentar usuarios progresivamente hasta que el percentil 95 (p95) supere 1 segundo. Anotar los RPS máximos.
+4. Aumentar usuarios progresivamente hasta que el percentil 95 (p95) supere 1 segundo. Anotar los RPS máximos.
 
 ### P1.2: Prueba escalonada de 25 minutos (Scale-out / Scale-in)
 1. Restaurar `min_instances = 2`, `max_instances = 3` y aplicar.
 2. Ejecutar prueba guardando reportes en la carpeta `evidencias/`:
 ```bash
-locust -f locustfile.py --host=http://<IP_LB> --headless -u 150 -r 5 --run-time 25m --csv=evidencias/locust_escalonada --html=evidencias/locust_reporte.html
+locust -f tests/locustfile.py --host=http://<IP_LB> --headless -u 150 -r 5 --run-time 25m --csv=evidencias/locust_escalonada --html=evidencias/locust_reporte.html
 ```
 
 ### P2.1: Prueba de Falla Lógica
