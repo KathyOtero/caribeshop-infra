@@ -7,7 +7,7 @@ resource "azurerm_policy_definition" "deny_ssh" {
   description = "Denies NSG rules that allow inbound SSH from Internet."
 
   policy_rule = jsonencode({
-    if = {
+    "if" = {
       allOf = [
         {
           field  = "type"
@@ -40,7 +40,7 @@ resource "azurerm_policy_definition" "deny_ssh" {
       ]
     }
 
-    then = {
+    "then" = {
       effect = "Deny"
     }
   })

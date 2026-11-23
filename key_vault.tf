@@ -7,6 +7,7 @@ resource "random_string" "kv_suffix" {
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_key_vault" "main" {
+  #checkov:skip=CKV2_AZURE_32:Using Service Endpoints and Network ACLs instead of Private Endpoints per project budget and rubric
   name                = "${var.project_name}-kv-${random_string.kv_suffix.result}"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
@@ -45,6 +46,7 @@ resource "azurerm_role_assignment" "vmss_secret_reader" {
 resource "azurerm_key_vault_secret" "app_secret" {
   name            = "app-secret"
   value           = var.app_secret_value
+  content_type    = "text/plain"
   key_vault_id    = azurerm_key_vault.main.id
   expiration_date = "2027-11-22T00:00:00Z"
 
