@@ -42,6 +42,13 @@ resource "azurerm_role_assignment" "vmss_secret_reader" {
   principal_id         = azurerm_linux_virtual_machine_scale_set.app.identity[0].principal_id
 }
 
+# Asignación de rol para que el operador Terraform pueda aprovisionar secretos en Key Vault con RBAC
+resource "azurerm_role_assignment" "deployer_secrets_officer" {
+  scope                = azurerm_key_vault.main.id
+  role_definition_name = "Key Vault Secrets Officer"
+  principal_id         = data.azurerm_client_config.current.object_id
+}
+
 # Secreto con fecha de expiración (Requisito S3)
 resource "azurerm_key_vault_secret" "app_secret" {
   name            = "app-secret"
@@ -51,6 +58,7 @@ resource "azurerm_key_vault_secret" "app_secret" {
   expiration_date = "2027-11-22T00:00:00Z"
 
   depends_on = [
-    azurerm_role_assignment.vmss_secret_reader
+    azurerm_role_assignment.vmss_secret_reader,
+    azurerm_role_assignment.deployer_secrets_officer
   ]
 }
